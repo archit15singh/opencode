@@ -1,3 +1,15 @@
+// Older Android WebViews lack Array.prototype.toSorted.
+if (!Array.prototype.toSorted) {
+  Object.defineProperty(Array.prototype, "toSorted", {
+    configurable: true,
+    writable: true,
+    value: function toSorted<T>(this: ArrayLike<T>, compareFn?: (a: T, b: T) => number) {
+      // Copy by index so holes become undefined and the original array stays untouched.
+      return Array.from({ length: this.length }, (_, index) => this[index]).sort(compareFn)
+    },
+  })
+}
+
 // Safari before 17.4 lacks Map.groupBy and Promise.withResolvers, and Promise.try arrived in Safari 18.2. Electron's
 // Chromium has all three, so these only matter for the web app.
 if (!Map.groupBy) {

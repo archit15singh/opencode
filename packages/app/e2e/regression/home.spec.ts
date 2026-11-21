@@ -28,6 +28,18 @@ async function openHome(page: Page, input: Parameters<typeof mockStressTimeline>
   await page.goto("/")
 }
 
+test("Home loads when the browser has no native Array.toSorted", async ({ page }) => {
+  await page.addInitScript(() => {
+    const array: { toSorted?: typeof Array.prototype.toSorted } = Array.prototype
+    delete array.toSorted
+  })
+  const earlier = { id: "ses_home_compat", title: "Browser compatibility session" }
+  await mockWorkspace(page, { name: "Browser compatibility", sessions: [earlier] })
+  await page.goto("/")
+  await expect(page.getByRole("textbox", { name: "Search sessions" })).toBeVisible()
+  await expect(row(page, earlier.title)).toBeVisible()
+})
+
 test("Home projects, utility rows, search and recent sessions show keyboard focus", async ({ page }) => {
   const workspace = await mockWorkspace(page, { name: "HomeFocus" })
 
